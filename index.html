@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>२य় बन्धु महामिलन ढाका २०२६</title>
+    <!-- JSZip for Bulk Downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <!-- HTML5 QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&family=Rozha+One&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8B5A8D;
+            --secondary: #D4AF37;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --success: #198754;
+            --gold: #d4af37;
+            --floral-bg: linear-gradient(135deg, rgba(200, 150, 200, 0.1), rgba(220, 180, 220, 0.1));
+        }
+        body {
+            font-family: 'Baloo 2', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5e6f5 0%, #f8f9fa 100%);
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            background: linear-gradient(135deg, #8B5A8D, #6B4C7A);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(139, 90, 141, 0.3);
+            border: 3px solid #D4AF37;
+            position: relative;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 10 Q60 20 55 30 Q50 40 45 30 Q40 20 50 10" fill="%23D4AF37" opacity="0.1"/><path d="M20 50 Q30 60 25 70 Q20 80 15 70 Q10 60 20 50" fill="%23D4AF37" opacity="0.1"/><path d="M80 60 Q90 70 85 80 Q80 90 75 80 Q70 70 80 60" fill="%23D4AF37" opacity="0.1"/></svg>');
+            background-repeat: repeat;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.8rem;
+            color: var(--secondary);
+            font-family: 'Rozha One', serif;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            margin: 15px 0 0 0;
+            font-size: 1.2rem;
+            color: #fff;
+            font-weight: 600;
+        }
+        .event-date {
+            margin: 10px 0 0 0;
+            font-size: 1rem;
+            color: var(--secondary);
+        }
+        
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 50px; height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
+            background: #e8dce8;
+            border: 2px solid #D4AF37;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            color: var(--primary);
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--secondary);
+            box-shadow: 0 4px 12px rgba(139, 90, 141, 0.3);
+        }
+        
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(139, 90, 141, 0.15);
+            border-left: 5px solid var(--primary);
+            border-top: 3px solid var(--secondary);
+        }
+        .card h2 {
+            color: var(--primary);
+            margin-top: 0;
+            font-family: 'Rozha One', serif;
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 5px rgba(139, 90, 141, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid var(--secondary);
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            background-color: #6B4C7A;
+            box-shadow: 0 4px 12px rgba(139, 90, 141, 0.3);
+            transform: translateY(-2px);
+        }
+
+        canvas {
+            width: 100%;
+            border-radius: 12px;
+            border: 3px solid var(--secondary);
+            margin-top: 15px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(139, 90, 141, 0.2);
+        }
+
+        .table-wrapper { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .status-pass { background: #d1e7dd; color: #0f5132; }
+        .status-fail { background: #f8d7da; color: #842029; }
+
+        #reader { 
+            width: 100%; 
+            background: #fafafa;
+            border: 2px dashed var(--primary) !important;
+            border-radius: 8px; 
+        }
+        .action-btn {
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+        .action-btn.disabled-state {
+            background-color: #6c757d !important;
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+        .empty-state { text-align: center; color: #999; padding: 30px; }
+
+        .card-circle {
+            width: 180px;
+            height: 180px;
+            border: 8px solid var(--secondary);
+            border-radius: 50%;
+            background: #f5e6f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div id="loadingText">ক্লাউড ডাটাবেস লোড হচ্ছে...</div>
+</div>
+
+<div class="container">
+    <header>
+        <h1>२य় बन्धु महामिलन</h1>
+        <p class="subtitle">ঢাকা २०२६</p>
+        <p class="event-date">SSC 93 Pirojpur | The Cuisine Hub Restaurant, Mirpur-12</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event, 'registration')">📝 নিবন্ধন</button>
+        <button class="tab-btn" onclick="switchTab(event, 'dashboard')">📊 ড্যাশবোর্ড</button>
+        <button class="tab-btn" onclick="switchTab(event, 'bouncer')">🔐 গেট ম্যানেজমেন্ট</button>
+    </div>
+
+    <!-- TAB 1: REGISTRATION -->
+    <div id="registration" class="view-panel active">
+        <div class="grid">
+            <div class="card">
+                <h2>সদস্য নিবন্ধন ফর্ম (Cloud API)</h2>
+                <form id="regForm" onsubmit="registerMember(event)">
+                    <div class="form-group">
+                        <label>বন্ধুর নাম:</label>
+                        <input type="text" id="memberName" required placeholder="নাম লিখুন">
+                    </div>
+                    <div class="form-group">
+                        <label>মোবাইল নম্বর:</label>
+                        <input type="tel" id="memberPhone" required placeholder="01712345678">
+                    </div>
+                    <div class="form-group">
+                        <label>পেমেন্ট তথ্য:</label>
+                        <input type="text" id="paymentInfo" required placeholder="Bkash ID/Cash">
+                    </div>
+                    <div class="form-group">
+                        <label>বন্ধুর ছবি:</label>
+                        <input type="file" id="memberPhotoInput" accept="image/*">
+                    </div>
+                    <button type="submit">নিবন্ধন সম্পন্ন করুন ✓</button>
+                </form>
+            </div>
+
+            <div class="card" style="text-align: center;">
+                <h2>আপনার ডিজিটাল পাস</h2>
+                <canvas id="ticketCanvas" width="900" height="600"></canvas>
+                <button id="downloadSingleBtn" style="display:none; margin-top:15px; background:#0dcaf0; color:black;" onclick="downloadSingleCard()">কার্ড ডাউনলোড করুন 📥</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: DASHBOARD -->
+    <div id="dashboard" class="view-panel">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                <h2 style="margin: 0;">নিবন্ধিত সদস্যদের তালিকা</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="fetchCloudData()" style="width: auto; background-color: var(--success);">🔄 ডাটা রিফ্রেশ</button>
+                    <button onclick="exportAllToZip()" style="width: auto; background-color: var(--secondary); color: var(--dark);">সব কার্ড ডাউনলোড 📦</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>ছবি</th>
+                            <th>নাম</th>
+                            <th>মোবাইল</th>
+                            <th>পেমেন্ট তথ্য</th>
+                            <th>প্রবেশ</th>
+                            <th>খাবার</th>
+                            <th>নাস্তা</th>
+                            <th>স্মারক</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: BOUNCER -->
+    <div id="bouncer" class="view-panel">
+        <div class="grid">
+            <div class="card" style="text-align: center;">
+                <h2>কিউআর কোড স্ক্যানার</h2>
+                <div id="reader" style="margin-bottom: 20px;"></div>
+                <hr style="border: 1px solid #ddd; margin: 15px 0;">
+                <input type="tel" id="scanPhone" placeholder="মোবাইল নম্বর লিখুন" style="margin-bottom: 10px;">
+                <button onclick="manualSearch()">ম্যানুয়াল অনুসন্ধান 🔍</button>
+            </div>
+
+            <div class="card">
+                <h2>সদস্য ভেরিফিকেশন প্যানেল</h2>
+                <div id="scanDetails" style="color: #999;">
+                    ক্যামেরার সামনে কিউআর কোড ধরুন অথবা মোবাইল নম্বর দিয়ে সার্চ করুন
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 🔑 আপনার গুগল অ্যাপস স্ক্রিপ্ট লিংকটি এখানে দিন
+    // ==========================================
+    const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL";
+
+    let registeredMembers = [];
+    const canvas = document.getElementById('ticketCanvas');
+    const ctx = canvas.getContext('2d');
+    let lastRegisteredMember = null;
+    let html5QrcodeScanner = null;
+    let currentScannedPhone = "";
+
+    window.onload = async () => {
+        if(!SCRIPT_URL || SCRIPT_URL.includes('YOUR_GOOGLE_APPS')) {
+            console.log("Running in Sandbox Mode. Configure SCRIPT_URL for Live Database.");
+            await drawCardBase("আপনার নাম", "01712345678", "");
+            return;
+        }
+        await fetchCloudData();
+        await drawCardBase("আপনার নাম", "01712345678", "");
+    };
+
+    function showLoader(text) {
+        document.getElementById('loadingText').innerText = text;
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+
+    function hideLoader() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    async function fetchCloudData() {
+        if(!SCRIPT_URL || SCRIPT_URL.includes('YOUR_GOOGLE_APPS')) return;
+        showLoader("গুগল শিট থেকে ডাটাবেস লোড হচ্ছে...");
+        try {
+            const response = await fetch(SCRIPT_URL);
+            registeredMembers = await response.json();
+            updateTable();
+        } catch (e) {
+            console.error(e);
+            alert("❌ ক্লাউড ডাটাবেস সিঙ্ক করতে ব্যর্থ!");
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function switchTab(event, tabName) {
+        document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+
+        if (tabName === 'bouncer') {
+            startQRScanner();
+        } else {
+            stopQRScanner();
+        }
+        
+        if (tabName === 'dashboard') {
+            fetchCloudData();
+        }
+    }
+
+    function loadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error("Image error"));
+            img.src = src;
+        });
+    }
+
+    async function drawCardBase(name, phone, photoSrc) {
+        // Background with floral pattern
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, '#f5e6f5');
+        gradient.addColorStop(0.5, '#fff9fc');
+        gradient.addColorStop(1, '#f5e6f5');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Floral decorative elements (circles at corners)
+        ctx.fillStyle = 'rgba(212, 175, 55, 0.1)';
+        ctx.beginPath();
+        ctx.arc(100, 100, 80, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(canvas.width - 100, canvas.height - 100, 80, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Main border
+        ctx.strokeStyle = '#8B5A8D';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(20, 20, canvas.width - 40, canvas.height - 40);
+
+        // Header section - purple gradient
+        const headerGradient = ctx.createLinearGradient(0, 20, 0, 140);
+        headerGradient.addColorStop(0, '#8B5A8D');
+        headerGradient.addColorStop(1, '#6B4C7A');
+        ctx.fillStyle = headerGradient;
+        ctx.fillRect(20, 20, canvas.width - 40, 120);
+
+        // Event title
+        ctx.fillStyle = '#D4AF37';
+        ctx.font = 'bold 48px "Rozha One", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('२य় बन्धु महामिलन', canvas.width / 2, 85);
+
+        // Event location
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '16px "Baloo 2", sans-serif';
+        ctx.fillText('ঢাকা २०२६', canvas.width / 2, 115);
+
+        // Organization name
+        ctx.fillStyle = '#D4AF37';
+        ctx.font = 'bold 14px "Baloo 2", sans-serif';
+        ctx.fillText('এসএসসি-৯३ পিরোজপুর', canvas.width / 2, 145);
+
+        // Photo circle with border
+        const photoX = 80;
+        const photoY = 200;
+        const photoRadius = 85;
+
+        // Draw golden circle border
+        ctx.strokeStyle = '#D4AF37';
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.arc(photoX, photoY, photoRadius, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Draw photo or placeholder
+        if (photoSrc) {
+            try {
+                const photoImg = await loadImage(photoSrc);
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(photoX, photoY, photoRadius - 4, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(photoImg, photoX - photoRadius, photoY - photoRadius, photoRadius * 2, photoRadius * 2);
+                ctx.restore();
+            } catch (e) { drawPhotoPlaceholder(photoX, photoY, photoRadius); }
+        } else { 
+            drawPhotoPlaceholder(photoX, photoY, photoRadius); 
+        }
+
+        // Member details section
+        ctx.fillStyle = '#212529';
+        ctx.font = 'bold 32px "Baloo 2", sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('নাম:', 250, 220);
+        
+        ctx.fillStyle = '#8B5A8D';
+        ctx.font = 'bold 28px "Baloo 2", sans-serif';
+        ctx.fillText(name, 250, 260);
+
+        // Mobile number
+        ctx.fillStyle = '#212529';
+        ctx.font = '18px "Baloo 2", sans-serif';
+        ctx.fillText('মোবাইল: ' + phone, 250, 300);
+
+        // Venue info
+        ctx.fillStyle = '#666666';
+        ctx.font = '14px "Baloo 2", sans-serif';
+        ctx.fillText('স্থান: The Cuisine Hub Restaurant, Mirpur-12', 250, 330);
+
+        // Event date
+        ctx.fillStyle = '#8B5A8D';
+        ctx.font = 'bold 16px "Baloo 2", sans-serif';
+        ctx.fillText('সময়: ১৫:३० - ২१:३०', 250, 360);
+
+        // QR Code
+        const qr = new QRious({ value: phone, size: 160 });
+        try {
+            const qrImg = await loadImage(qr.toDataURL());
+            ctx.drawImage(qrImg, canvas.width - 220, 200, 160, 160);
+        } catch (e) {}
+        ctx.strokeStyle = '#D4AF37';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(canvas.width - 220, 200, 160, 160);
+
+        // Bottom section - food menu
+        ctx.fillStyle = 'rgba(139, 90, 141, 0.05)';
+        ctx.fillRect(20, 410, canvas.width - 40, 170);
+
+        ctx.fillStyle = '#8B5A8D';
+        ctx.font = 'bold 18px "Baloo 2", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('খাবার মেনু', canvas.width / 2, 440);
+
+        ctx.fillStyle = '#212529';
+        ctx.font = '14px "Baloo 2", sans-serif';
+        const foodItems = ['রাজ চা/কফি', 'সাধারণ অনুষ্ঠান', 'রাতের নাস্তা'];
+        foodItems.forEach((item, idx) => {
+            ctx.fillText(item, (canvas.width / 4) + (idx * (canvas.width / 3)), 470);
+        });
+
+        // Footer
+        ctx.fillStyle = '#D4AF37';
+        ctx.font = 'bold 12px "Baloo 2", sans-serif';
+        ctx.fillText('এসএসসি-৯३ পিরোজপুর | Cloud Managed Event', canvas.width / 2, 575);
+    }
+
+    function drawPhotoPlaceholder(x, y, radius) {
+        ctx.fillStyle = '#e8dce8';
+        ctx.beginPath();
+        ctx.arc(x, y, radius - 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#999999';
+        ctx.font = 'bold 20px "Baloo 2", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('ফটো নেই', x, y + 8);
+    }
+
+    function compressImageFile(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = 150; tempCanvas.height = 150;
+                    const tempCtx = tempCanvas.getContext('2d');
+                    tempCtx.drawImage(img, 0, 0, 150, 150);
+                    resolve(tempCanvas.toDataURL('image/jpeg', 0.6));
+                };
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    }
+
+    async function registerMember(event) {
+        event.preventDefault();
+        const name = document.getElementById('memberName').value.trim();
+        const phone = document.getElementById('memberPhone').value.trim();
+        const paymentInfo = document.getElementById('paymentInfo').value.trim();
+        const photoFileInput = document.getElementById('memberPhotoInput').files[0];
+
+        if(registeredMembers.some(m => m.phone === phone)) {
+            alert('❌ এই মোবাইল নম্বরটি ইতিমধ্যে নিবন্ধিত!');
+            return;
+        }
+
+        showLoader("গুগল শিটে ডাটা পাঠানো হচ্ছে...");
+
+        let compressedPhotoBase64 = '';
+        if (photoFileInput) {
+            try {
+                compressedPhotoBase64 = await compressImageFile(photoFileInput);
+            } catch (e) {
+                console.warn("Image compression failed:", e);
+            }
+        }
+
+        const memberData = { name, phone, paymentInfo, photoUrl: compressedPhotoBase64 };
+
+        if(!SCRIPT_URL || SCRIPT_URL.includes('YOUR_GOOGLE_APPS')) {
+            lastRegisteredMember = { ...memberData, checkedIn: false, mealServed: false, snackServed: false, souvenirGiven: false };
+            registeredMembers.push(lastRegisteredMember);
+            await drawCardBase(name, phone, compressedPhotoBase64);
+            document.getElementById('downloadSingleBtn').style.display = 'block';
+            updateTable();
+            document.getElementById('regForm').reset();
+            hideLoader();
+            alert('✓ রেজিস্ট্রেশন সফল!');
+            return;
+        }
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'register', member: memberData })
+            });
+            
+            lastRegisteredMember = { ...memberData, checkedIn: false, mealServed: false, snackServed: false, souvenirGiven: false };
+            registeredMembers.push(lastRegisteredMember);
+            
+            await drawCardBase(name, phone, compressedPhotoBase64);
+            document.getElementById('downloadSingleBtn').style.display = 'block';
+            updateTable();
+            document.getElementById('regForm').reset();
+            alert('✓ ' + name + ' এর তথ্য সফলভাবে ক্লাউডে সংরক্ষিত হয়েছে!');
+        } catch (e) {
+            alert('❌ সার্ভার কানেকশন ত্রুটি!');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function updateTable() {
+        const tbody = document.querySelector('#membersTable tbody');
+        tbody.innerHTML = '';
+        if(registeredMembers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-state">কোনো ডাটা পাওয়া যায়নি</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        registeredMembers.forEach(m => {
+            const avatarHtml = m.photoUrl ? `<img src="${m.photoUrl}" style="width:40px; height:40px; object-fit:cover; border-radius:50%;">` : `No Photo`;
+            html += `<tr>
+                <td>${avatarHtml}</td>
+                <td><b>${m.name}</b></td>
+                <td>${m.phone}</td>
+                <td>${m.paymentInfo}</td>
+                <td><span class="status-badge ${m.checkedIn ? 'status-pass' : 'status-fail'}">${m.checkedIn ? '✓ প্রবেশ' : '✗ বাকি'}</span></td>
+                <td><span class="status-badge ${m.mealServed ? 'status-pass' : 'status-fail'}">${m.mealServed ? '✓ সম্পন্ন' : '✗ বাকি'}</span></td>
+                <td><span class="status-badge ${m.snackServed ? 'status-pass' : 'status-fail'}">${m.snackServed ? '✓ সম্পন্ন' : '✗ বাকি'}</span></td>
+                <td><span class="status-badge ${m.souvenirGiven ? 'status-pass' : 'status-fail'}">${m.souvenirGiven ? '✓ সম্পন্ন' : '✗ বাকি'}</span></td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function startQRScanner() {
+        if (html5QrcodeScanner) return;
+        html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+            fps: 10, qrbox: { width: 230, height: 230 }, rememberLastUsedCamera: true
+        }, false);
+        html5QrcodeScanner.render(onScanSuccess, () => {});
+    }
+
+    function stopQRScanner() {
+        if (html5QrcodeScanner) {
+            try {
+                html5QrcodeScanner.clear();
+                html5QrcodeScanner = null;
+            } catch (err) {
+                console.warn("QR Scanner cleanup warning:", err);
+            }
+        }
+        currentScannedPhone = "";
+    }
+
+    function onScanSuccess(decodedText) {
+        const cleanedText = decodedText.trim();
+        if (cleanedText === currentScannedPhone) return;
+        currentScannedPhone = cleanedText;
+        document.getElementById('scanPhone').value = cleanedText;
+        renderBouncerPanel(cleanedText);
+    }
+
+    function manualSearch() {
+        const phone = document.getElementById('scanPhone').value.trim();
+        renderBouncerPanel(phone);
+    }
+
+    function renderBouncerPanel(phone) {
+        const member = registeredMembers.find(m => m.phone === phone);
+        const resultDiv = document.getElementById('scanDetails');
+
+        if(!member) {
+            resultDiv.innerHTML = '<p style="color:red; font-weight:bold; text-align:center;">❌ সদস্য তথ্য পাওয়া যায়নি</p>';
+            return;
+        }
+
+        resultDiv.innerHTML = `
+            <h3>👤 নাম: ${member.name}</h3>
+            <p>📱 মোবাইল: ${member.phone}</p>
+            <hr>
+            <button class="action-btn ${member.checkedIn ? 'disabled-state' : ''}" data-phone="${member.phone}" data-property="checkedIn" ${member.checkedIn ? 'disabled' : ''}>প্রবেশ ${member.checkedIn ? '✓' : '→'}</button>
+            <button class="action-btn ${member.mealServed ? 'disabled-state' : ''}" data-phone="${member.phone}" data-property="mealServed" ${member.mealServed ? 'disabled' : ''}>খাবার ${member.mealServed ? '✓' : '→'}</button>
+            <button class="action-btn ${member.snackServed ? 'disabled-state' : ''}" data-phone="${member.phone}" data-property="snackServed" ${member.snackServed ? 'disabled' : ''}>নাস্তা ${member.snackServed ? '✓' : '→'}</button>
+            <button class="action-btn ${member.souvenirGiven ? 'disabled-state' : ''}" data-phone="${member.phone}" data-property="souvenirGiven" ${member.souvenirGiven ? 'disabled' : ''}>স্মারক ${member.souvenirGiven ? '✓' : '→'}</button>
+        `;
+        
+        document.querySelectorAll('#scanDetails .action-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!e.target.disabled) {
+                    updateStatus(e.target.dataset.phone, e.target.dataset.property);
+                }
+            });
+        });
+    }
+
+    async function updateStatus(phone, property) {
+        const member = registeredMembers.find(m => m.phone === phone);
+        if(!member || member[property]) return;
+
+        showLoader("আপডেট হচ্ছে...");
+        member[property] = true;
+
+        if(!SCRIPT_URL || SCRIPT_URL.includes('YOUR_GOOGLE_APPS')) {
+            updateTable();
+            renderBouncerPanel(phone);
+            hideLoader();
+            return;
+        }
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify({ action: 'updateStatus', phone: phone, property: property })
+            });
+            updateTable();
+            renderBouncerPanel(phone);
+        } catch (e) {
+            alert('❌ ক্লাউড আপডেট ব্যর্থ!');
+        } finally {
+            hideLoader();
+        }
+    }
+
+    function downloadSingleCard() {
+        if (!lastRegisteredMember) return;
+        let link = document.createElement('a');
+        link.download = `${lastRegisteredMember.name}_Pass.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }
+
+    async function exportAllToZip() {
+        if(registeredMembers.length === 0) return alert('❌ ডেটাবেস খালি!');
+        const zip = new JSZip();
+        showLoader("জিপ আর্কাইভ জেনারেট হচ্ছে...");
+        try {
+            for (let i = 0; i < registeredMembers.length; i++) {
+                const m = registeredMembers[i];
+                await drawCardBase(m.name, m.phone, m.photoUrl);
+                const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                zip.file(`${m.name}_${m.phone}_Pass.png`, blob);
+            }
+            const zipContent = await zip.generateAsync({ type: 'blob' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(zipContent);
+            link.download = 'Mahamilan_All_Passes.zip';
+            link.click();
+        } catch(err) {
+            alert("❌ জিপ তৈরিতে ত্রুটি");
+        } finally {
+            hideLoader();
+        }
+    }
+</script>
+</body>
+</html>
